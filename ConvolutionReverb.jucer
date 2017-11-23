@@ -14,6 +14,7 @@
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0">
   <MAINGROUP id="BrtSdX" name="ConvolutionReverb">
     <GROUP id="{EBB9EDC6-2BE8-8DA4-142B-BF8A5385BD33}" name="Source">
+      <GROUP id="{996655DE-F042-6EBA-A419-570D130522DE}" name="Convolution"/>
       <GROUP id="{53166A0A-1B44-8E3A-8A8E-2C0734BE40DE}" name="Visualizers">
         <FILE id="ETPH0V" name="AudioVisualizerController.cpp" compile="1"
               resource="0" file="Source/AudioVisualizerController.cpp"/>

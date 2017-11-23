@@ -18,8 +18,8 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (Co
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
-    
-    addAndMakeVisible (comboBox = new ComboBox ("new combo box"));
+    comboBox = std::unique_ptr<ComboBox>(new ComboBox ("new combo box"));
+    addAndMakeVisible (*comboBox);
     comboBox->setEditableText (false);
     comboBox->setJustificationType (Justification::centredLeft);
     comboBox->setTextWhenNothingSelected (String());
@@ -28,37 +28,36 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (Co
     comboBox->addItem (TRANS("FFT"), 2);
     comboBox->addSeparator();
     comboBox->addListener (this);
-    
-    addAndMakeVisible (label2 = new Label ("new label",
-                                           TRANS("impulse response")));
+    label2 = std::unique_ptr<Label>(new Label ("new label", TRANS("impulse response")));
+    addAndMakeVisible (*label2);
     label2->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
     label2->setJustificationType (Justification::centredLeft);
     label2->setEditable (false, false, false);
     label2->setColour (TextEditor::textColourId, Colours::black);
     label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    
-    addAndMakeVisible (impulse_response = new ImpulseVisualizer (320, 160));
+    impulse_response = std::unique_ptr<ImpulseVisualizer>(new ImpulseVisualizer (320, 160));
+    addAndMakeVisible (*impulse_response);
     impulse_response->setName ("impulse response");
-    
-    addAndMakeVisible (knoblabel = new Label ("new label",
-                                              TRANS("wet/dry\n"
-                                                    "balance")));
+    knoblabel = std::unique_ptr<Label>(new Label ("new label",
+                           TRANS("wet/dry\n"
+                                 "balance")));
+    addAndMakeVisible (*knoblabel);
     knoblabel->setFont (Font (15.60f, Font::plain).withTypefaceStyle ("Regular"));
     knoblabel->setJustificationType (Justification::centredLeft);
     knoblabel->setEditable (false, false, false);
     knoblabel->setColour (TextEditor::textColourId, Colours::black);
     knoblabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    
-    addAndMakeVisible (balance_knob = new Slider ("new slider"));
+    balance_knob = std::unique_ptr<Slider>(new Slider ("new slider"));
+    addAndMakeVisible (*balance_knob);
     balance_knob->setExplicitFocusOrder (1);
     balance_knob->setRange (0, 1, 0);
     balance_knob->setSliderStyle (Slider::RotaryHorizontalVerticalDrag);
     balance_knob->setTextBoxStyle (Slider::TextBoxBelow, false, 80, 20);
     balance_knob->setColour (Slider::thumbColourId, Colour (0xff8d00ad));
     balance_knob->addListener (this);
-    
-    addAndMakeVisible (srtverb = new Label ("new label",
-                                            TRANS("srtverb")));
+    srtverb = std::unique_ptr<Label>(new Label ("new label",
+                                                TRANS("srtverb")));
+    addAndMakeVisible (*srtverb);
     srtverb->setFont (Font (35.20f, Font::plain).withTypefaceStyle ("Regular").withExtraKerningFactor (0.500f));
     srtverb->setJustificationType (Justification::centred);
     srtverb->setEditable (false, false, false);
@@ -78,12 +77,12 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (Co
 
 ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
 {
-    comboBox = nullptr;
-    label2 = nullptr;
-    impulse_response = nullptr;
-    knoblabel = nullptr;
-    balance_knob = nullptr;
-    srtverb = nullptr;
+    comboBox.release();
+    label2.release();
+    impulse_response.release();
+    knoblabel.release();
+    balance_knob.release();
+    srtverb.release();
 }
 
 //==============================================================================
@@ -137,7 +136,7 @@ void ConvolutionReverbAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxT
     //[UsercomboBoxChanged_Pre]
     //[/UsercomboBoxChanged_Pre]
     
-    if (comboBoxThatHasChanged == comboBox)
+    if (comboBoxThatHasChanged == comboBox.get())
     {
         //[UserComboBoxCode_comboBox] -- add your combo box handling code here..
         //[/UserComboBoxCode_comboBox]
@@ -152,7 +151,7 @@ void ConvolutionReverbAudioProcessorEditor::sliderValueChanged (Slider* sliderTh
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
     
-    if (sliderThatWasMoved == balance_knob)
+    if (sliderThatWasMoved == balance_knob.get())
     {
         //[UserSliderCode_balance_knob] -- add your slider handling code here..
         //AudioPlayer::setBalance(float(balance_knob->getValue()));

@@ -42,12 +42,12 @@ private:
     // access the processor object that created it.
     ConvolutionReverbAudioProcessor& processor;
     
-    ScopedPointer<ComboBox> comboBox;
-    ScopedPointer<Label> label2;
-    ScopedPointer<ImpulseVisualizer> impulse_response;
-    ScopedPointer<Label> knoblabel;
-    ScopedPointer<Slider> balance_knob;
-    ScopedPointer<Label> srtverb;
+    std::unique_ptr<ComboBox> comboBox;
+    std::unique_ptr<Label> label2;
+    std::unique_ptr<ImpulseVisualizer> impulse_response;
+    std::unique_ptr<Label> knoblabel;
+    std::unique_ptr<Slider> balance_knob;
+    std::unique_ptr<Label> srtverb;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessorEditor)
 };
