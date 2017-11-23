@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#include "Convolver.h"
 
 //==============================================================================
 /**
@@ -39,6 +39,8 @@ public:
 
     //==============================================================================
     const String getName() const override;
+    
+    void reset() override;
 
     bool acceptsMidi() const override;
     bool producesMidi() const override;
@@ -62,7 +64,8 @@ public:
 private:
     //==============================================================================
     
-    dsp::Convolution convolution;
+    //std::unique_ptr<Convolver> convolver;
+    dsp::Convolution convolver;
     float balance;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
 };

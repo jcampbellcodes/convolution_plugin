@@ -11,6 +11,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include "JUCEConvolver.h"
 
 //==============================================================================
 ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
@@ -23,7 +24,9 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        )
+
 #endif
+                       // , convolver(new JUCEConvolver())
 {
 }
 
@@ -96,15 +99,15 @@ void ConvolutionReverbAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    //this->convolver->prepareToPlay(sampleRate, samplesPerBlock);
     dsp::ProcessSpec spec {sampleRate, static_cast<uint32>(samplesPerBlock), 2};
-    convolution.prepare(spec);
+    this->convolver.prepare(spec);
 }
 
 void ConvolutionReverbAudioProcessor::setImpulseResponse(File ir)
 {
-    convolution.loadImpulseResponse(ir, true, true, ir.getSize());
+    //this->convolver->setImpulseResponse(ir);
+        this->convolver.loadImpulseResponse(ir, true, true, ir.getSize());
 }
 
 
@@ -140,6 +143,8 @@ bool ConvolutionReverbAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 
 void ConvolutionReverbAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    //if(!this->convolver.get()) { return; }
+    
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
@@ -170,10 +175,16 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
     
     dsp::AudioBlock<float> wet_block (wetSamples);
     dsp::AudioBlock<float> dry_block (buffer);
-    this->convolution.process(dsp::ProcessContextReplacing<float>(wet_block));
+    //this->convolver->process(wet_block);
+    this->convolver.process(dsp::ProcessContextReplacing<float>(wet_block));
     dry_block.multiply(1.0 - this->balance);
     wet_block.multiply(this->balance);
     dry_block.add(wet_block);
+}
+
+void ConvolutionReverbAudioProcessor::reset()
+{
+    this->convolver.reset();
 }
 
 //==============================================================================
