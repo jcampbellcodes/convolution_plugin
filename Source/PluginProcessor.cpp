@@ -26,12 +26,13 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
                        )
 
 #endif
-                       // , convolver(new JUCEConvolver())
+                        , convolver(new JUCEConvolver())
 {
 }
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
+    convolver.release();
 }
 
 //==============================================================================
@@ -99,15 +100,14 @@ void ConvolutionReverbAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    //this->convolver->prepareToPlay(sampleRate, samplesPerBlock);
-    dsp::ProcessSpec spec {sampleRate, static_cast<uint32>(samplesPerBlock), 2};
-    this->convolver.prepare(spec);
+    assert(convolver.get());
+    this->convolver->prepareToPlay(sampleRate, samplesPerBlock);
 }
 
-void ConvolutionReverbAudioProcessor::setImpulseResponse(File ir)
+void ConvolutionReverbAudioProcessor::setImpulseResponse(const File& ir)
 {
-    //this->convolver->setImpulseResponse(ir);
-        this->convolver.loadImpulseResponse(ir, true, true, ir.getSize());
+    assert(convolver.get());
+    this->convolver->setImpulseResponse(ir);
 }
 
 
@@ -143,7 +143,7 @@ bool ConvolutionReverbAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 
 void ConvolutionReverbAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    //if(!this->convolver.get()) { return; }
+    if(!this->convolver.get()) { return; }
     
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
@@ -175,8 +175,7 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
     
     dsp::AudioBlock<float> wet_block (wetSamples);
     dsp::AudioBlock<float> dry_block (buffer);
-    //this->convolver->process(wet_block);
-    this->convolver.process(dsp::ProcessContextReplacing<float>(wet_block));
+    this->convolver->process(wet_block);
     dry_block.multiply(1.0 - this->balance);
     wet_block.multiply(this->balance);
     dry_block.add(wet_block);
@@ -184,7 +183,8 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 
 void ConvolutionReverbAudioProcessor::reset()
 {
-    this->convolver.reset();
+    assert(convolver.get());
+    this->convolver->reset();
 }
 
 //==============================================================================

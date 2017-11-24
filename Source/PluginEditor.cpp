@@ -120,7 +120,7 @@ bool ConvolutionReverbAudioProcessorEditor::isInterestedInFileDrag (const String
 
 void ConvolutionReverbAudioProcessorEditor::filesDropped (const StringArray &files, int, int)
 {
-    printf("file name: %s", files[0].toRawUTF8());
+    printf("file name: %s\n", files[0].toRawUTF8());
     File file(files[0]);
     
     // set processor impulse

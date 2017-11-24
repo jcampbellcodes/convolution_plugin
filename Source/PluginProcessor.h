@@ -59,13 +59,13 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     void setBalance(float bal) { this->balance = bal; }
-    void setImpulseResponse(File ir);
+    void setImpulseResponse(const File& ir);
     
 private:
     //==============================================================================
     
-    //std::unique_ptr<Convolver> convolver;
-    dsp::Convolution convolver;
+    std::unique_ptr<Convolver> convolver;
+    //dsp::Convolution convolver;
     float balance;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
 };
