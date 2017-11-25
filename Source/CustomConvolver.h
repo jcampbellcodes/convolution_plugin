@@ -31,7 +31,7 @@ private:
     int _fftTaps;
     int _numSubfilters; // (IR length) / L
     
-    dsp::FFT* fft;
+    std::unique_ptr<dsp::FFT> fft;
     
     // array of IR FFT partitions
     Array<dsp::AudioBlock<float>> _subfilters;
