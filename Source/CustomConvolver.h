@@ -27,13 +27,18 @@ private:
     //
     double _sampleRate;
     int _samplesPerBlock; // L
-    int _fftSize; // 2 * L; also subfilter size
+    int _fftOrder; // 2 * L; also subfilter size
+    int _fftTaps;
     int _numSubfilters; // (IR length) / L
     
+    dsp::FFT* fft;
+    
     // array of IR FFT partitions
-    Array<dsp::FFT> _subfilters;
+    Array<dsp::AudioBlock<float>> _subfilters;
     
     // OLAP buffer
     dsp::AudioBlock<float> _olap;
-    
+    dsp::AudioBlock<float> concatenationData;
+    dsp::AudioBlock<float> accumulationBuffer;
+    AudioFormatManager formatManager;
 };

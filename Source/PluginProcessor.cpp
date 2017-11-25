@@ -12,6 +12,7 @@
 #include "PluginEditor.h"
 
 #include "JUCEConvolver.h"
+#include "CustomConvolver.h"
 
 //==============================================================================
 ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
@@ -26,7 +27,7 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
                        )
 
 #endif
-                        , convolver(new JUCEConvolver())
+                        , convolver(new CustomConvolver())
 {
 }
 
