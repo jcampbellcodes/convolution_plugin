@@ -41,7 +41,7 @@ void CustomConvolver::prepareToPlay (double sampleRate, int samplesPerBlock)
     
     this->fft = std::unique_ptr<dsp::FFT>(new dsp::FFT(this->_fftOrder));
     
-    buff = new AudioBuffer<float>(1, this->_fftTaps * 2);
+    buff = new AudioBuffer<float>(2, this->_fftTaps * 2);
     this->accumulationBuffer = dsp::AudioBlock<float>(*buff);
     this->accumulationBuffer.fill(0);
     
@@ -70,8 +70,8 @@ void CustomConvolver::setImpulseResponse(File ir)
     while (i < this->_numSubfilters)
     {
         // read time domain audio data
-        std::unique_ptr<AudioBuffer<float>> time_domain_audio_chunk(new AudioBuffer<float>(2, this->_fftTaps * 2));
-        reader->read(time_domain_audio_chunk.get(),
+        AudioBuffer<float> time_domain_audio_chunk(2, this->_fftTaps * 2);
+        reader->read(&time_domain_audio_chunk,
                      0,
                      this->_samplesPerBlock * 2,
                      i * this->_samplesPerBlock,
@@ -80,14 +80,14 @@ void CustomConvolver::setImpulseResponse(File ir)
         
         // L
         
-        float* left = time_domain_audio_chunk->getWritePointer(0);
+        float* left = time_domain_audio_chunk.getWritePointer(0);
         
         ir_fft.performRealOnlyForwardTransform(left);
         // R
-        float* right = time_domain_audio_chunk->getWritePointer(1);
+        float* right = time_domain_audio_chunk.getWritePointer(1);
         ir_fft.performRealOnlyForwardTransform(right);
         //this->fft->performRealOnlyForwardTransform(*time_domain_audio_chunk->getArrayOfWritePointers());
-        this->_subfilters.add(dsp::AudioBlock<float>(*time_domain_audio_chunk));
+        this->_subfilters.add(time_domain_audio_chunk);
         
         i++;
     }
@@ -96,7 +96,7 @@ void CustomConvolver::setImpulseResponse(File ir)
 
 void CustomConvolver::process(dsp::AudioBlock<float> block)
 {
-    if(!this->_subfilters.size()) { return; }
+    if(this->_subfilters.size() != this->_numSubfilters || !this->_numSubfilters) { return; }
     //force mono
     block = block.getSingleChannelBlock(0);
     
@@ -127,16 +127,21 @@ void CustomConvolver::process(dsp::AudioBlock<float> block)
     this->accumulationBuffer.fill(0);
     
     int iter = 0;
+    //dsp::AudioBlock<float> subfilter;
+    /*
     while(iter < this->_numSubfilters) // TODO --> do we need a frequency delay line to make this baby work?
     {
-        // % multiply with the current H_slice
-        this->_subfilters[iter].getSingleChannelBlock(0).multiply(this->concatenationData);
-        this->_subfilters[iter].getSingleChannelBlock(1).multiply(this->concatenationData);
+        // % multiply with the current H_slic  e
         // % accumulate with accumulation buffer
-        this->accumulationBuffer.getSingleChannelBlock(0).add(this->_subfilters[iter].getSingleChannelBlock(0).multiply(this->concatenationData));
-        this->accumulationBuffer.getSingleChannelBlock(1).add(this->_subfilters[iter].getSingleChannelBlock(1).multiply(this->concatenationData));
+        this->accumulationBuffer.getSingleChannelBlock(0).add(
+                                                              dsp::AudioBlock<float>(
+                                                                                     this->_subfilters[iter].getWritePointer(0), 2, this->_fftTaps * 2).getSingleChannelBlock(0).multiply(this->concatenationData));
+        
+        this->accumulationBuffer.getSingleChannelBlock(1).add(
+                                                              dsp::AudioBlock<float>(
+                                                                                     this->_subfilters[iter].getArrayOfWritePointers(), 2, this->_fftTaps * 2).getSingleChannelBlock(0).multiply(this->concatenationData));
         iter++;
-    }
+    }*/
     
     // inverse transform
     fft->performRealOnlyInverseTransform(this->accumulationBuffer.getChannelPointer(0));

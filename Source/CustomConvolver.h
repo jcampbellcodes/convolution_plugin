@@ -34,7 +34,7 @@ private:
     std::unique_ptr<dsp::FFT> fft;
     
     // array of IR FFT partitions
-    Array<dsp::AudioBlock<float>> _subfilters;
+    Array<AudioBuffer<float>> _subfilters;
     
     // OLAP buffer
     dsp::AudioBlock<float> _olap;
